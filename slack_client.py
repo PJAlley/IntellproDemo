@@ -1,7 +1,7 @@
 import requests
 
 from pathlib import Path
-from typing import Dict, List, Any
+from typing import Any, Dict, List
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 
@@ -11,20 +11,27 @@ class SlackClient:
         self.client = WebClient(token=slack_token)
         self.token = slack_token
     
-    def get_channel_id(self, channel) -> str:
-        print(f"Retrieving ID associated with the {channel} channel...")
+    def get_channel_id(self, channel_name) -> str:
+        """
+            With the channel name as input, fetch its ID.
+            It's an error if the channel doesn't exist.
+        """
+        print(f"Retrieving ID associated with the {channel_name} channel...")
         try:
             channels = self.client.conversations_list()
 
             for channel in channels["channels"]:
-                if channel["name"] == "research":
+                if channel["name"] == channel_name:
+                    print(f"Retrieved Channel ID associated with {channel_name}: {channel['id']}")
                     return channel["id"]
-                    break
         except SlackApiError as e:
             print(f"Slack channel not found: {channel}")
             raise
     
     def get_messages_with_pdfs(self, channel_id: str) -> List[ Dict[str, Any] ]:
+        """
+            Using the channel_id, fetch messages and save the ones that include PDF file links.
+        """
         messages = self.client.conversations_history(channel=channel_id)
         files = []
 
@@ -36,6 +43,9 @@ class SlackClient:
         return files
     
     def download_pdf_files(self, directory: str, files: List[ Dict[str, Any] ]) -> List[ Dict[str, Any] ]:
+        """
+            Downloads PDF files from the Slack and saves them locally.
+        """
         pdf_path = Path(directory)
         pdf_path.mkdir(parents=True, exist_ok=True)
 

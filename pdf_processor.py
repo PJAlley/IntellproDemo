@@ -2,9 +2,12 @@ import pymupdf
 
 from pathlib import Path
 from multiprocessing import Pool
-from typing import Dict, List, Any
+from typing import Any, Dict, List
 
 def process_pdf_file(file_obj: Dict[str, Any]) -> Dict[str, Any]:
+    """
+        Using PyMuPDF, opens the PDF file and extracts the text from it.
+    """
     path = file_obj["local_path"]
     print(f"Extracting text from {path.name}...")
     try:
@@ -18,8 +21,10 @@ def process_pdf_file(file_obj: Dict[str, Any]) -> Dict[str, Any]:
         full_text = ""
 
     text_file_path = path.with_suffix(".txt")
+    print(text_file_path)
     with open(text_file_path, "w") as text_file:
         text_file.write(full_text)
+
     length = len(full_text)
     print(f"Extracted {length} characters from {path.name}.")
     return {
@@ -30,10 +35,18 @@ def process_pdf_file(file_obj: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 class PDFProcessor:
-    def __init__(self, workers: int=5):
-        self.pdf_workers = int(workers)
+    """
+        Processes PDF files using PyMuPDF.
+    """
+    def __init__(self, workers: int=3):
+        self.pdf_workers = workers
 
     def process_files(self, files: List[ Dict[str, Any] ]) -> List[ Dict[str, Any] ]:
+        """
+            Takes a list of objects containing the PDF paths and processes them.
+            There are workers that do the processing because it is CPU-intensive
+            and processing them sequentially can take a very long time.
+        """
         if not files:
             print("No files to process.")
             return []
