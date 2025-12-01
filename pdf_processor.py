@@ -21,7 +21,6 @@ def process_pdf_file(file_obj: Dict[str, Any]) -> Dict[str, Any]:
         full_text = ""
 
     text_file_path = path.with_suffix(".txt")
-    print(text_file_path)
     with open(text_file_path, "w") as text_file:
         text_file.write(full_text)
 
