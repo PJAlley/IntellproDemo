@@ -20,4 +20,4 @@ class Config:
         if not self.SLACK_CHANNEL:
             raise ValueError("SLack Channel is required.")
         if not self.OPEN_AI_KEY:
-            raise ValueError("Open AI key is required.")
+            raise ValueError("OpenAI key is required.")
