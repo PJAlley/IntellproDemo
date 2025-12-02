@@ -62,11 +62,11 @@ class MetadataExtractor:
             except APIError as e:
                 print(f"Error in API: {e}")
                 time.sleep(attempt + 2)
+            except Exception as e:
+                print("Unexpected error: {e}")
+                return { "title": None, "publication_date": None }
 
-        return {
-            "title": None,
-            "publication_date": None,
-        }
+        return { "title": None, "publication_date": None }
 
     def process_files(self, files: List[ Dict[str, Any] ]):
         """

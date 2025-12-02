@@ -54,5 +54,4 @@ class PDFProcessor:
         with Pool(processes=self.pdf_workers) as pool:
             processed_files = pool.map(process_pdf_file, files)
 
-        print(f"Processed {len(processed_files)} PDF files.")
         return processed_files 

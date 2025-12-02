@@ -22,7 +22,6 @@ class SlackClient:
 
             for channel in channels["channels"]:
                 if channel["name"] == channel_name:
-                    print(f"Retrieved Channel ID associated with {channel_name}: {channel['id']}")
                     return channel["id"]
         except SlackApiError as e:
             print(f"Slack channel not found: {channel}")
@@ -73,7 +72,7 @@ class SlackClient:
                     "id": file_obj["id"],
                     "name": file_obj["name"],
                     "url": file_obj["url_private"],
-                    "size": file_obj["size"],
+                    "pdf_size": file_obj["size"],
                     "timestamp": file_obj["timestamp"],
                     "local_path": file_name,
 
