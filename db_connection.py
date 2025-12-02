@@ -8,6 +8,9 @@ from typing import Any, Dict, List, Optional
 
 class DBConnection:
     def __init__(self, db_params: Dict[str, Any]):
+        """
+            With the provided dictionary, instantiate the DB object.
+        """
         self.db_params = {
             "host": db_params.get("host", "localhost"),
             "port": db_params.get("port", 5432),
@@ -66,6 +69,10 @@ class DBConnection:
         return
     
     def insert_pdf_record(self, data: Dict[str, Any]) -> Optional[int]:
+        """
+            Create a record from the data dictionary and insert the record into
+            the pdf_data table.
+        """
         record = {
             "file_id": data["id"],
             "file_name": data["name"],
@@ -77,6 +84,8 @@ class DBConnection:
             "text_length": data["length"],
             "text_path": str(data["text_file_path"]),
         }
+
+        # SQL that inserts the record into the database. Update if the file_id already exists.
         sql = """
         INSERT INTO pdf_data (
             file_id, file_name, title, publication_date, url,
@@ -106,6 +115,9 @@ class DBConnection:
             return None
         
     def bulk_insert_documents(self, data: List[ Dict[str, Any] ]):
+        """
+            For each document, call insert_pdf_record and check for success.
+        """
         success = 0
 
         for rec in data:

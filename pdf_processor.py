@@ -23,6 +23,9 @@ def process_pdf_file(file_obj: Dict[str, Any]) -> Dict[str, Any]:
         logger.warning(f"Could not process PDF file {path.name}: {e}")
         full_text = ""
 
+    # Write the resulting text to a text file with the same name.
+    # Save the path and the resulting length of the text in addition
+    # to the text itself for metadata extraction.
     text_file_path = path.with_suffix(".txt")
     with open(text_file_path, "w") as text_file:
         text_file.write(full_text)
@@ -40,14 +43,15 @@ class PDFProcessor:
     """
         Processes PDF files using PyMuPDF.
     """
-    def __init__(self, workers: int=3):
+    def __init__(self, workers: int=4):
         self.pdf_workers = workers
 
     def process_files(self, files: List[ Dict[str, Any] ]) -> List[ Dict[str, Any] ]:
         """
             Takes a list of objects containing the PDF paths and processes them.
             There are workers that do the processing because it is CPU-intensive
-            and processing them sequentially can take a very long time.
+            and processing them sequentially can take a very long time. Returns
+            additional data about the document.
         """
         if not files:
             logger.info("No files to process.")

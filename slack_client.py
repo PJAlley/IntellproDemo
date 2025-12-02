@@ -46,6 +46,7 @@ class SlackClient:
     def download_pdf_files(self, directory: str, files: List[ Dict[str, Any] ]) -> List[ Dict[str, Any] ]:
         """
             Downloads PDF files from the Slack and saves them locally.
+            Returns a list of dictionaries which contains basic information about each file.
         """
         pdf_path = Path(directory)
         pdf_path.mkdir(parents=True, exist_ok=True)
@@ -58,6 +59,8 @@ class SlackClient:
                 file_id = file_obj["id"]
                 name = file_obj["name"]
 
+                # The header is necessary to download the files using the 
+                # requests module, otherwise the resulting PDF will have no data.
                 headers = {"Authorization": f"Bearer {self.token}"}
                 pdf_req = requests.get(link, headers=headers, timeout=5)
 
