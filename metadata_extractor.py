@@ -1,9 +1,11 @@
-
+import logging
 import time
 
 from openai import OpenAI, APIConnectionError, RateLimitError, APIError
 from pydantic import BaseModel
 from typing import Any, Dict, List
+
+logger = logging.getLogger(__name__)
 
 class Metadata(BaseModel):
     title: str
@@ -16,7 +18,7 @@ class MetadataExtractor:
         self.client = OpenAI(api_key=ai_key)
         self.key = ai_key
         self.model = ai_model
-    
+
     def extract_metadata(self, text: str, retries: int = 3) -> Dict[str, Any]:
         text_prompt = f"""
         Your job is to extract the document title and the publication date from provided text.
@@ -49,21 +51,20 @@ class MetadataExtractor:
                     "title": output.title,
                     "publication_date": output.publication_date
                 }
-                print(parsed_data)
                 return parsed_data
             except APIConnectionError as e:
-                print(f"The server could not be reached: {e}")
+                logger.error(f"The server could not be reached: {e}")
                 time.sleep(1)
             except RateLimitError:
-                print("Rate limit reached.")
+                logger.warning("Rate limit reached.")
                 sleep_time = (attempt + 1) * 2
-                print(f"Sleeping for {sleep_time} seconds...")
+                logger.info(f"Sleeping for {sleep_time} seconds...")
                 time.sleep(sleep_time)
             except APIError as e:
-                print(f"Error in API: {e}")
+                logger.error(f"Error in API: {e}")
                 time.sleep(attempt + 2)
             except Exception as e:
-                print("Unexpected error: {e}")
+                logger.error("Unexpected error: {e}")
                 return { "title": None, "publication_date": None }
 
         return { "title": None, "publication_date": None }
@@ -76,10 +77,10 @@ class MetadataExtractor:
 
         for file_data in files:
             filename = file_data["text_file_path"].name
-            print(f"Extracting metadata from {filename}...")
+            logger.info(f"Extracting metadata from {filename}...")
             text = file_data["text"]
             if not text:
-                print(f"No text in {filename}")
+                logger.info(f"No text in {filename}")
                 metadata = {
                     "title": None,
                     "publication_date": None,
@@ -87,9 +88,9 @@ class MetadataExtractor:
             else:
                 metadata = self.extract_metadata(text)
                 if not metadata["title"]:
-                    print(f"Could not extract metadata from {filename}.")
+                    logger.warning(f"Could not extract metadata from {filename}.")
                 else:
-                    print(f"Extracted data from {filename}.")
+                    logger.info(f"Extracted data from {filename}.")
             processed = {
                 **file_data,
                 **metadata

@@ -1,3 +1,4 @@
+import logging
 import requests
 
 from pathlib import Path
@@ -5,6 +6,7 @@ from typing import Any, Dict, List
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 
+logger = logging.getLogger(__name__)
 
 class SlackClient:
     def __init__(self, slack_token: str):
@@ -16,7 +18,7 @@ class SlackClient:
             With the channel name as input, fetch its ID.
             It's an error if the channel doesn't exist.
         """
-        print(f"Retrieving ID associated with the {channel_name} channel...")
+        logger.info(f"Retrieving ID associated with the {channel_name} channel...")
         try:
             channels = self.client.conversations_list()
 
@@ -24,7 +26,7 @@ class SlackClient:
                 if channel["name"] == channel_name:
                     return channel["id"]
         except SlackApiError as e:
-            print(f"Slack channel not found: {channel}")
+            logger.error(f"Slack channel not found: {channel}")
             raise
     
     def get_messages_with_pdfs(self, channel_id: str) -> List[ Dict[str, Any] ]:
@@ -61,9 +63,9 @@ class SlackClient:
 
                 file_name = Path(f"{directory}/{file_id}_{name}")
                 if file_name.exists():
-                    print(f"Skipping existing download: {file_name.name}")
+                    logger.info(f"Skipping existing download: {file_name.name}")
                 else:
-                    print(f"Downloading {file_name.name}")
+                    logger.info(f"Downloading {file_name.name}")
                     pdf = pdf_req.content
                     with open(file_name, "wb") as out_file:
                         out_file.write(pdf)
@@ -79,7 +81,6 @@ class SlackClient:
                 }
                 processing_files.append(obj)
             except Exception as e:
-                print(f"Failed to download file {name}: {e}")
+                logger.warning(f"Failed to download file {name}: {e}")
                 continue
         return processing_files
-

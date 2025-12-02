@@ -1,15 +1,18 @@
+import logging
 import pymupdf
 
 from pathlib import Path
 from multiprocessing import Pool
 from typing import Any, Dict, List
 
+logger = logging.getLogger(__name__)
+
 def process_pdf_file(file_obj: Dict[str, Any]) -> Dict[str, Any]:
     """
         Using PyMuPDF, opens the PDF file and extracts the text from it.
     """
     path = file_obj["local_path"]
-    print(f"Extracting text from {path.name}...")
+    logger.info(f"Extracting text from {path.name}...")
     try:
         text = []
         with pymupdf.open(path) as doc:
@@ -17,7 +20,7 @@ def process_pdf_file(file_obj: Dict[str, Any]) -> Dict[str, Any]:
                 text.append(page.get_text())
         full_text = "/n".join(text)
     except Exception as e:
-        print(f"Could not process PDF file {path.name}: {e}")
+        logger.warning(f"Could not process PDF file {path.name}: {e}")
         full_text = ""
 
     text_file_path = path.with_suffix(".txt")
@@ -25,7 +28,7 @@ def process_pdf_file(file_obj: Dict[str, Any]) -> Dict[str, Any]:
         text_file.write(full_text)
 
     length = len(full_text)
-    print(f"Extracted {length} characters from {path.name}.")
+    logger.info(f"Extracted {length} characters from {path.name}.")
     return {
         **file_obj,
         "text": full_text,
@@ -47,11 +50,11 @@ class PDFProcessor:
             and processing them sequentially can take a very long time.
         """
         if not files:
-            print("No files to process.")
+            logger.info("No files to process.")
             return []
         
-        print(f"Extracting {len(files)} PDF files...")
+        logger.info(f"Extracting {len(files)} PDF files...")
         with Pool(processes=self.pdf_workers) as pool:
             processed_files = pool.map(process_pdf_file, files)
 
-        return processed_files 
+        return processed_files
