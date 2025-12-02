@@ -33,3 +33,4 @@ pdfs/
 # Log files
 *.log
 
+*.doc[x]
