@@ -1,6 +1,9 @@
-
+import logging
 import psycopg2
 import time
+
+logger = logging.getLogger(__name__)
+
 from typing import Any, Dict, List, Optional
 
 class DBConnection:
@@ -26,10 +29,10 @@ class DBConnection:
                 return True
             except Exception as e:
                 if attempt < max_attempts:
-                    print(f"Database not ready yet ({attempt + 1}/{max_attempts}).")
+                    logger.warning(f"Database not ready yet (attempt {attempt + 1}/{max_attempts}).")
                     time.sleep(2)
                 else:
-                    print("Failed to connect to database.")
+                    logger.error("Failed to connect to database.")
                     return False
 
     
@@ -58,7 +61,7 @@ class DBConnection:
                 cur.execute(sql)
                 self.conn.commit()
         except Exception as e:
-            print("Error creating schema: {e}")
+            logger.error("Error creating schema: {e}")
             raise
         return
     
@@ -96,10 +99,10 @@ class DBConnection:
                 result = cur.fetchone()
                 self.conn.commit()
                 doc_id = result[0] if result else None
-                print(f"Successfully inserted/updated document {data["id"]} with id {doc_id}")
+                logger.info(f"Successfully inserted/updated document {data["id"]} with id {doc_id}")
                 return doc_id
         except Exception as e:
-            print(f"Could not insert record: {e}")
+            logger.warning(f"Could not insert record: {e}")
             return None
         
     def bulk_insert_documents(self, data: List[ Dict[str, Any] ]):
