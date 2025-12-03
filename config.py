@@ -22,8 +22,8 @@ class Config:
 
     def validate(self):
         if not self.SLACK_BOT_TOKEN:
-            raise ValueError("SLack Bot Token is required.")
+            raise ValueError("Slack Bot Token is required.")
         if not self.SLACK_CHANNEL:
-            raise ValueError("SLack Channel is required.")
+            raise ValueError("Slack Channel is required.")
         if not self.OPEN_AI_KEY:
             raise ValueError("OpenAI key is required.")
