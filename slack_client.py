@@ -65,13 +65,10 @@ class SlackClient:
                 pdf_req = requests.get(link, headers=headers, timeout=5)
 
                 file_name = Path(f"{directory}/{file_id}_{name}")
-                if file_name.exists():
-                    logger.info(f"Skipping existing download: {file_name.name}")
-                else:
-                    logger.info(f"Downloading {file_name.name}")
-                    pdf = pdf_req.content
-                    with open(file_name, "wb") as out_file:
-                        out_file.write(pdf)
+                logger.info(f"Downloading {file_name.name}")
+                pdf = pdf_req.content
+                with open(file_name, "wb") as out_file:
+                    out_file.write(pdf)
                 
                 obj = {
                     "id": file_obj["id"],
